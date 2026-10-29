@@ -74,6 +74,10 @@ bash test.sh
 
 - Install as a Claude Code plugin from a marketplace (planned).
 
+## Contributing
+
+Forks and pull requests are welcome; `main` is protected and CI must pass. See [CONTRIBUTING.md](CONTRIBUTING.md).
+
 ## License
 
 [MIT](LICENSE) © 2026 Zeeshan Lalani. You may use, modify, distribute and sell it, provided the copyright and licence notice are kept. It is provided as is, without warranty.
