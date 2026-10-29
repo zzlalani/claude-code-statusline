@@ -15,13 +15,19 @@ ctx: █░░░░░░░ 12% (123k/1000k) | 5h: ████░░░░ 45
 
 Requires `bash` and `jq`.
 
+One command (backs up your existing script and `settings.json`, and refuses to replace a different status line unless `STATUSLINE_FORCE=1`):
+
 ```sh
-cp statusline-command.sh ~/.claude/statusline-command.sh
+curl -fsSL https://raw.githubusercontent.com/zzlalani/claude-code-statusline/main/install.sh | bash
 ```
 
-To update the live copy after changing this project, run `bash sync.sh`. It runs the tests first, keeps the previous copy as `statusline-command.sh.bak`, and skips the copy if nothing changed. Set `STATUSLINE_TARGET` to install somewhere else.
+Or from a clone:
 
-Add to `~/.claude/settings.json`:
+```sh
+bash install.sh
+```
+
+Manual: copy `statusline-command.sh` to `~/.claude/` and add to `~/.claude/settings.json`:
 
 ```json
 "statusLine": {
@@ -29,6 +35,10 @@ Add to `~/.claude/settings.json`:
   "command": "bash ~/.claude/statusline-command.sh"
 }
 ```
+
+### Developing
+
+To update the live copy after changing this project, run `bash sync.sh`. It runs the tests first, keeps the previous copy as `statusline-command.sh.bak`, and skips the copy if nothing changed. Set `STATUSLINE_TARGET` to install somewhere else.
 
 ## Colour thresholds
 
@@ -65,7 +75,7 @@ bash test.sh
 
 ## Roadmap
 
-- Single-command install from Git (planned; for now use the manual steps above).
+- Install as a Claude Code plugin from a marketplace (planned).
 
 ## License
 

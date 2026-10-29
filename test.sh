@@ -142,4 +142,33 @@ if cmp -s statusline-command.sh "$sync_dir/statusline-command.sh"; then echo "PA
 if [ "$(cat "$sync_dir/statusline-command.sh.bak")" = "old" ]; then echo "PASS sync backs up previous target"; else echo "FAIL sync backs up previous target"; failures=$((failures + 1)); fi
 rm -rf "$sync_dir"
 
+run_install() {
+  STATUSLINE_INSTALL_DIR="$1" STATUSLINE_SOURCE="$PWD/statusline-command.sh" bash ./install.sh 2>&1
+}
+
+install_dir=$(mktemp -d)
+echo '{"theme":"dark","statusLine":null}' | jq 'del(.statusLine)' > "$install_dir/settings.json"
+run_install "$install_dir" >/dev/null
+assert_equals "install copies script" "$(cmp -s statusline-command.sh "$install_dir/statusline-command.sh" && echo yes)" "yes"
+assert_equals "install sets statusLine command" "$(jq -r '.statusLine.command' "$install_dir/settings.json")" "bash $install_dir/statusline-command.sh"
+assert_equals "install keeps other settings" "$(jq -r '.theme' "$install_dir/settings.json")" "dark"
+assert_equals "install backs up settings" "$(jq -r '.theme' "$install_dir/settings.json.bak")" "dark"
+out=$(run_install "$install_dir")
+assert_contains "install is idempotent" "$out" "already installed"
+rm -rf "$install_dir"
+
+install_dir=$(mktemp -d)
+run_install "$install_dir" >/dev/null
+assert_equals "install creates settings when missing" "$(jq -r '.statusLine.type' "$install_dir/settings.json")" "command"
+rm -rf "$install_dir"
+
+install_dir=$(mktemp -d)
+echo '{"statusLine":{"type":"command","command":"my-other-line"}}' > "$install_dir/settings.json"
+out=$(run_install "$install_dir")
+assert_contains "install refuses to replace another status line" "$out" "another status line"
+assert_equals "other status line untouched" "$(jq -r '.statusLine.command' "$install_dir/settings.json")" "my-other-line"
+out=$(STATUSLINE_FORCE=1 run_install "$install_dir")
+assert_equals "force replaces another status line" "$(jq -r '.statusLine.command' "$install_dir/settings.json")" "bash $install_dir/statusline-command.sh"
+rm -rf "$install_dir"
+
 [ "$failures" -eq 0 ] && echo "all passed" || { echo "$failures failed"; exit 1; }
