@@ -6,10 +6,7 @@
 
 Claude Code status line: model with thinking effort, context usage, and 5-hour / 7-day rate-limit bars with reset countdowns.
 
-```
-Opus (high)                                                     user@example.com
-ctx: █░░░░░░░ 12% (123k/1000k) | 5h: ████░░░░ 45% 4h18m | 7d: ██████░░ 80% 2d7h
-```
+![Colour tiers: green, blue, orange, red, blood red, mixed, and a narrow wrapped terminal](docs/screenshot.png)
 
 ## Install
 
