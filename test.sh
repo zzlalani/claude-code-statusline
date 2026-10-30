@@ -6,7 +6,7 @@ failures=0
 now=$(date +%s)
 
 render() {
-  echo "$1" | bash ./statusline-command.sh 2>&1 | sed $'s/\033\\[[0-9;]*m//g'
+  echo "$1" | STATUSLINE_WIDTH=200 bash ./statusline-command.sh 2>&1 | sed $'s/\033\\[[0-9;]*m//g'
 }
 
 assert_contains() {
@@ -117,10 +117,12 @@ assert_equals "email wraps to its own right-aligned line when it does not fit" "
 out=$(echo "$full" | STATUSLINE_CLAUDE_JSON=/nonexistent STATUSLINE_WIDTH=50 bash ./statusline-command.sh | strip_ansi)
 assert_equals "metrics wrap greedily across lines" "$(echo "$out" | wc -l | tr -d ' ')" "3"
 assert_not_contains "first metrics line holds only ctx" "$(echo "$out" | sed -n 2p)" "5h:"
-assert_contains "second metrics line packs 5h and 7d" "$(echo "$out" | sed -n 3p)" "5h: ████████ 45% 4h18m | 7d: ████████ 80% 2d7h"
+assert_contains "second metrics line packs 5h and 7d" "$(echo "$out" | sed -n 3p)" "5h: ▇▇▇▇▇▇▇▇ 45% 4h18m | 7d: ▇▇▇▇▇▇▇▇ 80% 2d7h"
+assert_not_contains "wrapped bars leave a gap between stacked lines" "$out" "█"
 
 out=$(echo "$full" | STATUSLINE_CLAUDE_JSON=/nonexistent STATUSLINE_WIDTH=100 bash ./statusline-command.sh | strip_ansi)
 assert_equals "wide terminal keeps metrics on one line" "$(echo "$out" | wc -l | tr -d ' ')" "2"
+assert_contains "single metrics line keeps full-height bars" "$out" "ctx: ████████"
 
 out=$(echo "$model_json" | STATUSLINE_CLAUDE_JSON="$account_file" STATUSLINE_WIDTH=12 bash ./statusline-command.sh | sed $'s/\033\\[[0-9;]*m//g' | head -1)
 if [ "$out" = "Opus a@b.com" ]; then echo "PASS email kept with one space when it just fits"; else echo "FAIL email kept when it just fits: '$out'"; failures=$((failures + 1)); fi
