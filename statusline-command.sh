@@ -185,6 +185,7 @@ fi
 sep=" $(printf "${DIM}|${RESET}") "
 SEP_WIDTH=3
 
+metric_lines=()
 current=""
 current_width=0
 for p in "${parts[@]}"; do
@@ -196,11 +197,19 @@ for p in "${parts[@]}"; do
     current="${current}${sep}${p}"
     current_width=$(( current_width + SEP_WIDTH + p_width ))
   else
-    lines+=("$current")
+    metric_lines+=("$current")
     current="$p"
     current_width="$p_width"
   fi
 done
-[ -n "$current" ] && lines+=("$current")
+[ -n "$current" ] && metric_lines+=("$current")
+
+# Full blocks fill the whole cell, so bars on stacked lines merge; the 7/8 block leaves a gap at the top.
+if [ "${#metric_lines[@]}" -gt 1 ]; then
+  for i in "${!metric_lines[@]}"; do
+    metric_lines[i]="${metric_lines[i]//█/▇}"
+  done
+fi
+lines+=("${metric_lines[@]}")
 
 printf "%b\n" "$line1" "${lines[@]}"
